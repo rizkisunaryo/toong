@@ -10,6 +10,126 @@
     <link rel="stylesheet" href="css/framework7.ios.min.css">
     <!-- Path to your custom app styles-->
     <link rel="stylesheet" href="css/my-app.css">
+    <style type="text/css">
+      .img-wrapper{
+          position: relative;
+          overflow:hidden;
+          height:250px;
+      }
+
+      .img-wrapper img{
+          position: absolute;
+          top:-100%; left:0; right: 0; bottom:-100%;
+          margin: auto;
+          width: 250px;
+      }
+    </style>
+    <script type="text/javascript" src="js/jquery-1.11.3.min.js"></script>
+    <script type="text/javascript">
+      $(document).ready(function (argument) {
+        var status=0;
+        var initialInventoryHtml = 
+          '<div class="content-block-title">Welcome to Toong</div>\n' + 
+          '<div class="content-block">\n' + 
+          '  <p>You don\'t have any item in your inventory yet!</p>\n' + 
+          '  <p>Clik <a href="addItem.html" class="item-link">here</a> to add item to your inventory.</p>\n' + 
+          '</div>';
+        if (status!=0) {
+          initialInventoryHtml = '';
+        }
+        $('#inventoryContainer').html(initialInventoryHtml);
+      });
+    </script>
+    <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+    <script type="text/javascript" charset="utf-8">
+
+      var pictureSource;   // picture source
+      var destinationType; // sets the format of returned value
+
+      // Wait for device API libraries to load
+      //
+      document.addEventListener("deviceready",onDeviceReady,false);
+
+      // device APIs are available
+      //
+      function onDeviceReady() {
+          pictureSource=navigator.camera.PictureSourceType;
+          destinationType=navigator.camera.DestinationType;
+      }
+
+      // Called when a photo is successfully retrieved
+      //
+      function onPhotoDataSuccess(imageData) {
+        // Uncomment to view the base64-encoded image data
+        // console.log(imageData);
+
+        // Get image handle
+        //
+        var smallImage = document.getElementById('smallImage');
+
+        // Unhide image elements
+        //
+        smallImage.style.display = 'block';
+
+        // Show the captured photo
+        // The in-line CSS rules are used to resize the image
+        //
+        smallImage.src = "data:image/jpeg;base64," + imageData;
+      }
+
+      // Called when a photo is successfully retrieved
+      //
+      function onPhotoURISuccess(imageURI) {
+        // Uncomment to view the image file URI
+        // console.log(imageURI);
+
+        // Get image handle
+        //
+        var largeImage = document.getElementById('largeImage');
+
+        // Unhide image elements
+        //
+        largeImage.style.display = 'block';
+
+        // Show the captured photo
+        // The in-line CSS rules are used to resize the image
+        //
+        largeImage.src = imageURI;
+      }
+
+      // A button will call this function
+      //
+      function capturePhoto() {
+        // Take picture using device camera and retrieve image as base64-encoded string
+        navigator.camera.getPicture(onPhotoDataSuccess, onFail, { quality: 50,
+          destinationType: destinationType.DATA_URL });
+      }
+
+      // A button will call this function
+      //
+      function capturePhotoEdit() {
+        // Take picture using device camera, allow edit, and retrieve image as base64-encoded string
+        navigator.camera.getPicture(onPhotoDataSuccess, onFail, { quality: 20, allowEdit: true,
+          destinationType: destinationType.DATA_URL });
+      }
+
+      // A button will call this function
+      //
+      function getPhoto(source) {
+        // Retrieve image file location from specified source
+        navigator.camera.getPicture(onPhotoURISuccess, onFail, { quality: 50,
+          destinationType: destinationType.FILE_URI,
+          sourceType: source });
+      }
+
+      // Called if something bad happens.
+      //
+      function onFail(message) {
+        // alert('Failed because: ' + message);
+      }
+
+    </script>
+
   </head>
   <body>
     <!-- Status bar overlay for fullscreen mode-->
@@ -19,15 +139,16 @@
     <!-- Left panel with reveal effect-->
     <div class="panel panel-left panel-reveal">
       <div class="content-block">
-        <p>Left panel content goes here</p>
+        <!-- <p>Left panel content goes here</p> -->
+        <p><a href="addItem.html" class="item-link close-panel">Add Item</a></p>
       </div>
     </div>
     <!-- Right panel with cover effect-->
-    <div class="panel panel-right panel-cover">
+    <!-- <div class="panel panel-right panel-cover">
       <div class="content-block">
         <p>Right panel content goes here</p>
       </div>
-    </div>
+    </div> -->
     <!-- Views, and they are tabs-->
     <!-- We need to set "toolbar-through" class on it to keep space for our tab bar-->
     <div class="views tabs toolbar-through">
@@ -35,7 +156,10 @@
       <div id="view-1" class="view view-main tab active">
         <div class="navbar">
           <div class="navbar-inner">
-            <div class="center sliding">First View</div>
+            <div class="center sliding">Inventory</div>
+            <div class="right">
+              <a href="#" class="link icon-only open-panel"> <i class="icon icon-bars"></i></a>
+            </div>
           </div>
         </div>
         <!-- Pages-->
@@ -43,13 +167,11 @@
           <!-- Page, data-page contains page name-->
           <div data-page="index-1" class="page">
             <!-- Scrollable page content-->
-            <div class="page-content">
-              <!-- <div class="content-block-title">Welcome</div> -->
+            <div class="page-content" id="inventoryContainer">
+              <div class="content-block-title">Welcome to Toong</div>
               <div class="content-block">
-                <p>This is an example of tab bar application layout. The main point of such tabbed layout is that each tab contains independent view with its own routing and navigation.</p>
-                <p>Each tab/view may have different layout, different navbar type (dynamic, fixed or static) or without navbar like this tab.</p>
-                <p>And of course, your favorite panels are still here: <a href="#" class="open-panel">left</a> and  <a href="#" data-panel="right" class="open-panel">right</a></p>
-                <p>Icons and their labels in tab bar below are just for example and don't related to their content.</p>
+                <p>You don't have any item in your inventory yet!</p>
+                <p>Clik <a href="addItem.html" class="item-link">here</a> to add item to your inventory.</p>
               </div>
             </div>
           </div>
@@ -60,7 +182,10 @@
         <!-- We can make with view with navigation, let's add Top Navbar-->
         <div class="navbar">
           <div class="navbar-inner">
-            <div class="center sliding">Second View</div>
+            <div class="center sliding">Sold Items</div>
+            <!-- <div class="right">
+              <a href="#" class="link icon-only open-panel"> <i class="icon icon-bars"></i></a>
+            </div> -->
           </div>
         </div>
         <div class="pages navbar-through">
@@ -89,155 +214,16 @@
           </div>
         </div>
       </div>
-      <div id="view-3" class="view tab">
-        <div class="pages">
-          <div data-page="index-3" class="page">
-            <div class="page-content">
-              <div class="content-block-title">Another plain static view</div>
-              <div class="content-block">
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla vel commodo massa, eu adipiscing mi. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Phasellus ultricies dictum neque, non varius tortor fermentum at. Curabitur auctor cursus imperdiet. Nam molestie nisi nec est lacinia volutpat in a purus. Maecenas consectetur condimentum viverra. Donec ultricies nec sem vel condimentum. Phasellus eu tincidunt enim, sit amet convallis orci. Vestibulum quis fringilla dolor.    </p>
-                <p>Mauris commodo lacus at nisl lacinia, nec facilisis erat rhoncus. Sed eget pharetra nunc. Aenean vitae vehicula massa, sed sagittis ante. Quisque luctus nec velit dictum convallis. Nulla facilisi. Ut sed erat nisi. Donec non dolor massa. Mauris malesuada dolor velit, in suscipit leo consectetur vitae. Duis tempus ligula non eros pretium condimentum. Cras sed dolor odio.</p>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla vel commodo massa, eu adipiscing mi. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Phasellus ultricies dictum neque, non varius tortor fermentum at. Curabitur auctor cursus imperdiet. Nam molestie nisi nec est lacinia volutpat in a purus. Maecenas consectetur condimentum viverra. Donec ultricies nec sem vel condimentum. Phasellus eu tincidunt enim, sit amet convallis orci. Vestibulum quis fringilla dolor.    </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div id="view-4" class="view tab">
-        <div class="pages navbar-fixed">
-          <div data-page="index-4" class="page">
-            <div class="navbar">
-              <div class="navbar-inner">
-                <div class="center">Settings</div>
-              </div>
-            </div>
-            <div class="page-content">
-              <div class="list-block">
-                <ul>
-                  <li>
-                    <div class="item-content">
-                      <div class="item-media"><i class="icon icon-form-name"></i></div>
-                      <div class="item-inner"> 
-                        <div class="item-title label">Name</div>
-                        <div class="item-input">
-                          <input type="text" placeholder="Your name">
-                        </div>
-                      </div>
-                    </div>
-                  </li>
-                  <li>
-                    <div class="item-content">
-                      <div class="item-media"><i class="icon icon-form-email"></i></div>
-                      <div class="item-inner"> 
-                        <div class="item-title label">E-mail</div>
-                        <div class="item-input">
-                          <input type="email" placeholder="E-mail">
-                        </div>
-                      </div>
-                    </div>
-                  </li>
-                  <li>
-                    <div class="item-content">
-                      <div class="item-media"><i class="icon icon-form-url"></i></div>
-                      <div class="item-inner"> 
-                        <div class="item-title label">URL</div>
-                        <div class="item-input">
-                          <input type="url" placeholder="URL">
-                        </div>
-                      </div>
-                    </div>
-                  </li>
-                  <li>
-                    <div class="item-content">
-                      <div class="item-media"><i class="icon icon-form-password"></i></div>
-                      <div class="item-inner"> 
-                        <div class="item-title label">Password</div>
-                        <div class="item-input">
-                          <input type="password" placeholder="Password">
-                        </div>
-                      </div>
-                    </div>
-                  </li>
-                  <li>
-                    <div class="item-content">
-                      <div class="item-media"><i class="icon icon-form-tel"></i></div>
-                      <div class="item-inner"> 
-                        <div class="item-title label">Phone</div>
-                        <div class="item-input">
-                          <input type="tel" placeholder="Phone">
-                        </div>
-                      </div>
-                    </div>
-                  </li>
-                  <li>
-                    <div class="item-content">
-                      <div class="item-media"><i class="icon icon-form-gender"></i></div>
-                      <div class="item-inner"> 
-                        <div class="item-title label">Gender</div>
-                        <div class="item-input">
-                          <select>
-                            <option>Male</option>
-                            <option>Female</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                  </li>
-                  <li>
-                    <div class="item-content">
-                      <div class="item-media"><i class="icon icon-form-calendar"></i></div>
-                      <div class="item-inner"> 
-                        <div class="item-title label">Birth date</div>
-                        <div class="item-input">
-                          <input type="date" placeholder="Birth day" value="2014-04-30">
-                        </div>
-                      </div>
-                    </div>
-                  </li>
-                  <li>
-                    <div class="item-content">
-                      <div class="item-media"><i class="icon icon-form-toggle"></i></div>
-                      <div class="item-inner"> 
-                        <div class="item-title label">Switch</div>
-                        <div class="item-input">
-                          <label class="label-switch">
-                            <input type="checkbox">
-                            <div class="checkbox"></div>
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-                  </li>
-                  <li>
-                    <div class="item-content">
-                      <div class="item-media"><i class="icon icon-form-settings"></i></div>
-                      <div class="item-inner">
-                        <div class="item-title label">Slider</div>
-                        <div class="item-input">
-                          <div class="range-slider">
-                            <input type="range" min="0" max="100" value="50" step="0.1">
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-              <div class="content-block">
-                <p>Mauris commodo lacus at nisl lacinia, nec facilisis erat rhoncus. Sed eget pharetra nunc. Aenean vitae vehicula massa, sed sagittis ante. Quisque luctus nec velit dictum convallis. Nulla facilisi. Ut sed erat nisi. Donec non dolor massa. Mauris malesuada dolor velit, in suscipit leo consectetur vitae. Duis tempus ligula non eros pretium condimentum. Cras sed dolor odio.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
       <!-- Bottom Tabbar-->
       <div class="toolbar tabbar tabbar-labels">
         <div class="toolbar-inner">
           <a href="#view-1" class="tab-link active"> 
-            <i class="icon tabbar-demo-icon-1"></i><span class="tabbar-label">Information</span>
+            <!-- <i class="icon tabbar-demo-icon-1"></i><span class="tabbar-label">Inventory</span> -->
+            Inventory
           </a>
           <a href="#view-2" class="tab-link">
-            <i class="icon tabbar-demo-icon-2"></i><span class="tabbar-label">Inbox</span>
+            <!-- <i class="icon tabbar-demo-icon-2"></i><span class="tabbar-label">Sold Items</span> -->
+            Sold Items
           </a>
           <!-- <a href="#view-3" class="tab-link"> 
             <i class="icon tabbar-demo-icon-3"><span class="badge bg-red">4</span></i><span class="tabbar-label">Upload</span>
