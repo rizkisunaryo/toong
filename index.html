@@ -152,14 +152,15 @@
       function movePic(fileUri){ 
         // fileUri = fileUri.replace("file://", ""); 
         // // alert(fileUri);
-        // filePath = fileUri.replace("file://", ""); 
-        // // var str = "/root/crot/lagi/dong/ah.png";
-        // var res = filePath.split("/");
-        // var theStr = '';
-        // var until = res.length - 2;
-        // for (var i=1; i<until; i++) {
-        //   theStr+='/'+res[i];
-        // }
+        filePath = fileUri.replace("file://", ""); 
+        // var str = "/root/crot/lagi/dong/ah.png";
+        var res = filePath.split("/");
+        var theStr = '';
+        var until = res.length - 2;
+        for (var i=1; i<until; i++) {
+          theStr+='/'+res[i];
+        }
+        theStr = 'file://' + theStr;
         // photoOriginFolder = theStr;
         // // document.getElementById("demo").innerHTML = theStr;
 
@@ -168,19 +169,19 @@
         window.resolveLocalFileSystemURI(
           fileUri,
           function(fileEntry){
-                alert(cordova.file.dataDirectory);
-                newFileUri  = cordova.file.dataDirectory + "images/";
+                // alert(theStr);
+                newFileUri  = theStr + '/files/';
                 oldFileUri  = fileUri;
-                fileExt     = "." + oldFileUri.split('.').pop();
+                // fileExt     = "." + oldFileUri.split('.').pop();
 
-                newFileName = guid("car") + fileExt;
-                // alert(fileUri);
+                // newFileName = guid("car") + fileExt;
+                alert(fileUri+':::'+newFileUri);
                 window.resolveLocalFileSystemURI(newFileUri,
                         function(dirEntry) {
                             // move the file to a new directory and rename it
                             // alert(dirEntry.fullPath);
                             alert('masuk2');
-                            fileEntry.moveTo(dirEntry, newFileName, successMove, resOnError);
+                            fileEntry.moveTo(dirEntry, 'crot.jpg', successMove, resOnError);
                         },
                         resOnError);
           },
