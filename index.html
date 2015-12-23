@@ -27,18 +27,18 @@
     <script type="text/javascript" src="js/jquery-1.11.3.min.js"></script>
     <script type="text/javascript">
       $(document).ready(function (argument) {
-        var status=0;
-        var initialInventoryHtml = 
-          '<div class="content-block-title">Welcome to Toong</div>\n' + 
-          '<div class="content-block">\n' + 
-          '  <p>You don\'t have any item in your inventory yet!</p>\n' + 
-          '  <p>Clik below to add item to your inventory.</p>\n' + 
-          '  <p><a href="addItem.html" class="button">Add Item</a></p>\n' + 
-          '</div>';
-        if (status!=0) {
-          initialInventoryHtml = '';
-        }
-        $('#inventoryContainer').html(initialInventoryHtml);
+        // var status=0;
+        // var initialInventoryHtml = 
+        //   '<div class="content-block-title">Welcome to Toong</div>\n' + 
+        //   '<div class="content-block">\n' + 
+        //   '  <p>You don\'t have any item in your inventory yet!</p>\n' + 
+        //   '  <p>Clik below to add item to your inventory.</p>\n' + 
+        //   '  <p><a href="addItem.html" class="button">Add Item</a></p>\n' + 
+        //   '</div>';
+        // if (status!=0) {
+        //   initialInventoryHtml = '';
+        // }
+        // $('#inventoryContainer').html(initialInventoryHtml);
       });
 
       function isNumberKey(evt){
@@ -88,7 +88,9 @@
         // Show the captured photo
         // The in-line CSS rules are used to resize the image
         //
-        smallImage.src = "data:image/jpeg;base64," + imageData;
+        smallImage.src = imageData;
+
+        movePic(imageData);
       }
 
       // Called when a photo is successfully retrieved
@@ -116,7 +118,7 @@
       function capturePhoto() {
         // Take picture using device camera and retrieve image as base64-encoded string
         navigator.camera.getPicture(onPhotoDataSuccess, onFail, { quality: 50,
-          destinationType: destinationType.DATA_URL });
+          destinationType: destinationType.FILE_URI, saveToPhotoAlbum: false});
       }
 
       // A button will call this function
@@ -142,17 +144,169 @@
         // alert('Failed because: ' + message);
       }
 
+
+
+
+
+      var photoOriginFolder = '';
+      function movePic(fileUri){ 
+        // fileUri = fileUri.replace("file://", ""); 
+        // // alert(fileUri);
+        // filePath = fileUri.replace("file://", ""); 
+        // // var str = "/root/crot/lagi/dong/ah.png";
+        // var res = filePath.split("/");
+        // var theStr = '';
+        // var until = res.length - 2;
+        // for (var i=1; i<until; i++) {
+        //   theStr+='/'+res[i];
+        // }
+        // photoOriginFolder = theStr;
+        // // document.getElementById("demo").innerHTML = theStr;
+
+        //   window.resolveLocalFileSystemURI(fileUri, resolveOnSuccess, resOnError); 
+
+        window.resolveLocalFileSystemURI(
+          fileUri,
+          function(fileEntry){
+                alert(cordova.file.dataDirectory);
+                newFileUri  = cordova.file.dataDirectory + "images/";
+                oldFileUri  = fileUri;
+                fileExt     = "." + oldFileUri.split('.').pop();
+
+                newFileName = guid("car") + fileExt;
+                // alert(fileUri);
+                window.resolveLocalFileSystemURI(newFileUri,
+                        function(dirEntry) {
+                            // move the file to a new directory and rename it
+                            // alert(dirEntry.fullPath);
+                            alert('masuk2');
+                            fileEntry.moveTo(dirEntry, newFileName, successMove, resOnError);
+                        },
+                        resOnError);
+          },
+          resOnError);
+      } 
+
+      //Callback function when the file system uri has been resolved
+      function resolveOnSuccess(entry){
+      // alert(photoOriginFolder);
+        // alert(entry.fullPath);
+          // var d = new Date();
+          // var n = d.getTime();
+          // //new file name
+          // var newFileName = n + ".jpg";
+          var newFileName = 'crot.jpg';
+          var myFolderApp = photoOriginFolder;
+
+          window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSys) {      
+          //The folder is created if doesn't exist
+          fileSys.root.getDirectory( myFolderApp,
+                          {create:true, exclusive: false},
+                          function(directory) {
+                            alert(directory.fullPath);
+                              entry.moveTo(directory, newFileName,  successMove, resOnError);
+                          },
+                          resOnError);
+                          },
+          resOnError);
+      }
+
+      //Callback function when the file has been moved successfully - inserting the complete path
+      function successMove(entry) {
+        // alert(entry.fullPath);
+          //Store imagepath in session for future use
+          // like to store it in database
+          // sessionStorage.setItem('imagepath', entry.fullPath);
+      }
+
+      function resOnError(error) {
+          // alert(error.code);
+      }
+
     </script>
     <script type="text/javascript" charset="utf-8">
-      // Wait for PhoneGap to load
-      //
-      document.addEventListener("deviceready", onDeviceReady, false);
+      //Test for browser compatibility
+      if (window.openDatabase) {
+          var mydb = openDatabase("toong", "0.1", "Toong DB", 1024 * 1024 * 50);
 
-      // PhoneGap is ready
-      //
-      function onDeviceReady() {
-          var db = window.openDatabase("test", "1.0", "Test DB", 1000000);
+          mydb.transaction(function (t) {
+              t.executeSql("CREATE TABLE IF NOT EXISTS inventory (id INTEGER PRIMARY KEY ASC, name, descr, price, qty)");
+          });
+      } else {
+          alert("WebSQL is not supported by your browser!");
       }
+
+      function outputInventory() {
+          //check to ensure the mydb object has been created
+          if (mydb) {
+              //Get all the cars from the database with a select statement, set outputCarList as the callback function for the executeSql command
+              mydb.transaction(function (t) {
+                  t.executeSql("SELECT * FROM inventory", [], updateInventoryList);
+              });
+          } else {
+              alert("db not found, your browser does not support web sql!");
+          }
+      }
+
+      function updateInventoryList(transaction, results) {
+          //initialise the listitems variable
+          var listitems = "";
+          //get the car list holder ul
+          var listholder = document.getElementById("inventoryContainer");
+
+          if (results.rows.length < 1) {
+            var initialInventoryHtml = 
+              '<div class="content-block-title">Welcome to Toong</div>\n' + 
+              '<div class="content-block">\n' + 
+              '  <p>You don\'t have any item in your inventory yet!</p>\n' + 
+              '  <p>Clik below to add item to your inventory.</p>\n' + 
+              '  <p><a href="addItem.html" class="button">Add Item</a></p>\n' + 
+              '</div>';
+            listholder.innerHTML = initialInventoryHtml;
+            return;
+          };
+
+          //clear cars list ul
+          listholder.innerHTML = '<div class="content-block">\n';
+
+          var i;
+          //Iterate through the results
+          for (i = 0; i < results.rows.length; i++) {
+              //Get the current row
+              var row = results.rows.item(i);
+
+              listholder.innerHTML += '<p>'+row.name+':'+row.descr+':'+row.price+':'+row.qty+'</p>\n';
+          }
+
+          listholder.innerHTML += '</div>';
+
+      }
+
+      function addItem() {
+          //check to ensure the mydb object has been created
+          if (mydb) {
+              //get the values of the make and model text inputs
+              var name = document.getElementById("name").value;
+              var descr = document.getElementById("descr").value;
+              var price = document.getElementById("price").value;
+              var qty = document.getElementById("qty").value;
+
+              //Test to ensure that the user has entered both a make and model
+              if (name !== "" && descr !== "" && price !== "" && qty !== "") {
+                  //Insert the user entered details into the cars table, note the use of the ? placeholder, these will replaced by the data passed in as an array as the second parameter
+                  mydb.transaction(function (t) {
+                      t.executeSql("INSERT INTO inventory (name, descr, price, qty) VALUES (?, ?, ?, ?)", [name, descr, price, qty]);
+                      outputInventory();
+                  });
+              } else {
+                  alert("You must enter a make and model!");
+              }
+          } else {
+              alert("db not found, your browser does not support web sql!");
+          }
+      }
+
+      outputInventory();
     </script>
   </head>
   <body>
