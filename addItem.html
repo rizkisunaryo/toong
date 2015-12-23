@@ -9,12 +9,52 @@
   <div data-page="addItem" class="page">
     <div class="page-content">
       <div class="content-block">
-        <p><a href="#" class="button" onclick="capturePhoto();">Take photo</a></p>
-        <!-- <img style="display:none;width:60px;height:60px;" id="smallImage" src="" /> -->
-        <div class="img-wrapper">
-            <img id="smallImage" src="img/default-item.jpg">
+        <div class="list-block">
+          <ul>
+            <li>
+              <div class="item-content">
+                <div class="item-inner">
+                  <div class="item-input">
+                    <input type="text" placeholder="Name">
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li>
+              <div class="item-content">
+                <div class="item-inner">
+                  <div class="item-input">
+                    <input type="text" placeholder="Description">
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li>
+              <div class="item-content">
+                <div class="item-inner">
+                  <div class="item-input">
+                    <input type="text" placeholder="Price per unit" onkeypress="return isNumberKey(event);" onkeyup="this.value=numberWithCommas(this.value);">
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li>
+              <div class="item-content">
+                <div class="item-inner">
+                  <div class="item-input">
+                    <input type="text" placeholder="Number (quantity)" onkeypress="return isNumberKey(event);" onkeyup="this.value=numberWithCommas(this.value);">
+                  </div>
+                </div>
+              </div>
+            </li>
+          </ul>
         </div>
-        <!-- <center><img id="smallImage" style="border-radius:20px; height:250px; width:250px;" src="img/default-item.jpg"></center> -->
+        <div class="img-wrapper">
+            <img id="smallImage" src="img/no-image.png">
+        </div>
+        <p><a href="#" class="button" onclick="capturePhoto();">Take photo</a></p>
+        <br />
+        <p><a href="#" class="button button-big button-fill color-gray" style="background-color:grey;">Add</a></p>
       </div>
     </div>
   </div>

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <title>My App</title>
+    <title>Toong</title>
     <!-- Path to Framework7 Library CSS-->
     <link rel="stylesheet" href="css/framework7.ios.min.css">
     <!-- Path to your custom app styles-->
@@ -32,13 +32,27 @@
           '<div class="content-block-title">Welcome to Toong</div>\n' + 
           '<div class="content-block">\n' + 
           '  <p>You don\'t have any item in your inventory yet!</p>\n' + 
-          '  <p>Clik <a href="addItem.html" class="item-link">here</a> to add item to your inventory.</p>\n' + 
+          '  <p>Clik below to add item to your inventory.</p>\n' + 
+          '  <p><a href="addItem.html" class="button">Add Item</a></p>\n' + 
           '</div>';
         if (status!=0) {
           initialInventoryHtml = '';
         }
         $('#inventoryContainer').html(initialInventoryHtml);
       });
+
+      function isNumberKey(evt){
+          var charCode = (evt.which) ? evt.which : evt.keyCode
+          return !(charCode > 31 && (charCode < 48 || charCode > 57));
+      }
+      function numberWithCommas(x) {
+          //remove commas
+          retVal = x ? parseFloat(x.replace(/,/g, '')) : 0;
+          if (retVal==0) return '';
+
+          //apply formatting
+          return retVal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      }
     </script>
     <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
     <script type="text/javascript" charset="utf-8">
@@ -129,7 +143,17 @@
       }
 
     </script>
+    <script type="text/javascript" charset="utf-8">
+      // Wait for PhoneGap to load
+      //
+      document.addEventListener("deviceready", onDeviceReady, false);
 
+      // PhoneGap is ready
+      //
+      function onDeviceReady() {
+          var db = window.openDatabase("test", "1.0", "Test DB", 1000000);
+      }
+    </script>
   </head>
   <body>
     <!-- Status bar overlay for fullscreen mode-->
@@ -139,8 +163,14 @@
     <!-- Left panel with reveal effect-->
     <div class="panel panel-left panel-reveal">
       <div class="content-block">
-        <!-- <p>Left panel content goes here</p> -->
-        <p><a href="addItem.html" class="item-link close-panel">Add Item</a></p>
+        <p><a href="addItem.html" class="button active close-panel">Add Item</a></p>
+        <!-- <div class="list-block">
+          <ul>
+            <li>
+              <a href="addItem.html" class="item-link list-button close-panel">Add Item</a>
+            </li>
+          </ul>
+        </div> -->
       </div>
     </div>
     <!-- Right panel with cover effect-->
@@ -168,11 +198,7 @@
           <div data-page="index-1" class="page">
             <!-- Scrollable page content-->
             <div class="page-content" id="inventoryContainer">
-              <div class="content-block-title">Welcome to Toong</div>
-              <div class="content-block">
-                <p>You don't have any item in your inventory yet!</p>
-                <p>Clik <a href="addItem.html" class="item-link">here</a> to add item to your inventory.</p>
-              </div>
+              <!-- Filled with jQuery -->
             </div>
           </div>
         </div>
